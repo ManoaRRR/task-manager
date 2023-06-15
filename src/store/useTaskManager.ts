@@ -1,7 +1,21 @@
 import create from 'zustand';
 
+type Task = {
+  id: string;
+  title: string;
+};
+
+type TaskStore = {
+  tasks: Task[];
+  searchQuery: string;
+  addTask: (task: Task) => void;
+  updateTask: (taskId: string, updatedTask: Partial<Task>) => void;
+  deleteTask: (taskId: string) => void;
+  setSearchQuery: (query: string) => void;
+};
+
 // Définir le store Zustand
-const useTaskStore = create((set) => ({
+const useTaskStore = create<TaskStore>((set) => ({
   tasks: [],
   searchQuery: '',
   addTask: (task) => set((state) => ({ tasks: [...state.tasks, task] })),
@@ -23,19 +37,19 @@ const useTaskManager = () => {
     );
   };
 
-  const addNewTask = (title) => {
-    const newTask = {
+  const addNewTask = (title: string) => {
+    const newTask: Task = {
       id: Math.random().toString(),
       title,
     };
     addTask(newTask);
   };
 
-  const updateExistingTask = (taskId, updatedTitle) => {
+  const updateExistingTask = (taskId: string, updatedTitle: string) => {
     updateTask(taskId, { title: updatedTitle });
   };
 
-  const deleteTaskById = (taskId) => {
+  const deleteTaskById = (taskId: string) => {
     deleteTask(taskId);
   };
 
