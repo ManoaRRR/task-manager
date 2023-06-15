@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
+// Définition des interfaces pour la tâche et l'état des tâches
 interface Task {
   id: string;
   title: string;
@@ -13,18 +14,20 @@ interface TasksState {
   searchQuery: string;
 }
 
+// Définition des actions pour la gestion des tâches
 type TaskAction =
   | { type: "ADD_TASK"; task: Task }
   | { type: "UPDATE_TASK"; id: string; completed: boolean }
   | { type: "DELETE_TASK"; id: string }
   | { type: "SET_SEARCH_QUERY"; query: string };
 
+// Hook personnalisé pour gérer les fonctionnalités de recherche, d'ajout, de mise à jour et de suppression des tâches
 const useTasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    // Load tasks from Local Storage on component mount
+    // Charger les tâches depuis le Local Storage lors du montage du composant
     const storedTasks = localStorage.getItem("tasks");
     if (storedTasks) {
       setTasks(JSON.parse(storedTasks));
@@ -32,7 +35,7 @@ const useTasks = () => {
   }, []);
 
   useEffect(() => {
-    // Save tasks to Local Storage when tasks state changes
+    // Sauvegarder les tâches dans le Local Storage lorsque l'état des tâches change
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
@@ -66,6 +69,7 @@ const useTasks = () => {
   return { tasks: filteredTasks, searchQuery, dispatch };
 };
 
+// Fonction utilitaire pour calculer la différence entre l'heure du serveur et l'heure du navigateur
 const calculateTimeDifference = (server: Date, client: Date) => {
   const diff = Math.abs(server.getTime() - client.getTime()) / 1000;
   const days = Math.floor(diff / 86400);
@@ -75,10 +79,21 @@ const calculateTimeDifference = (server: Date, client: Date) => {
   return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
 };
 
-export default function Home() {
+// Fonction Next.js pour récupérer l'heure du serveur côté serveur
+export async function getServerSideProps() {
+  const serverTime = new Date().toISOString();
+
+  return {
+    props: {
+      serverTime,
+    },
+  };
+}
+
+// Composant de la page d'accueil
+export default function Home({ serverTime }: { serverTime: string }) {
   const router = useRouter();
   const { tasks, searchQuery, dispatch } = useTasks();
-  const serverTime = new Date(); // Replace with your server time
   const clientTime = new Date();
 
   const moveToTaskManager = () => {
@@ -95,12 +110,16 @@ export default function Home() {
       </Head>
       <main>
         <h1>The easiest exam you will ever find</h1>
+
+        {/* Afficher l'heure du serveur */}
         <div>
           <p>
-            Server time: <span className="serverTime">{serverTime.toLocaleString()}</span>
+            Server time: <span className="serverTime">{new Date(serverTime).toLocaleString()}</span>
           </p>
+
+          {/* Calculer et afficher la différence entre l'heure du serveur et l'heure du navigateur */}
           <p>
-            Time diff: <span className="serverTime">{calculateTimeDifference(serverTime, clientTime)}</span>
+            Time diff: <span className="serverTime">{calculateTimeDifference(new Date(serverTime), clientTime)}</span>
           </p>
         </div>
 
