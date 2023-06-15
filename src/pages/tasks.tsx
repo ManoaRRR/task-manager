@@ -1,74 +1,72 @@
 import React, { ChangeEvent, useRef } from 'react';
+import { useTaskManager } from '@/store/useTaskManager';
 
 interface Task {
-  id: number,
-  title: string,
-  completed: boolean,
+  id: number;
+  title: string;
+  completed: boolean;
 }
 
 const TaskManager = () => {
-  // const createTaskRef = ...:
-  // const {
-  //   tasks,
-  //   searchTask,
-  //   addTask,
-  //   updateTask,
-  //   deleteTask,
-  //   setSearchTask,
-  // } = useTaskManager();
+  const createTaskRef = useRef<HTMLInputElement>(null);
+  const {
+    tasks,
+    searchQuery,
+    setSearchQuery,
+    searchTasks,
+    addNewTask,
+    updateExistingTask,
+    deleteTaskById,
+  } = useTaskManager();
 
   const handleAddTask = () => {
-    const title = ""; // Replace with the value in the createTaskRef 
-    const newTask = {
-      id: Date.now(),
-      title,
-      completed: false,
-    };
-    // addTask(newTask);
+    const title = createTaskRef.current?.value || '';
+    if (title) {
+      const newTask: Task = {
+        id: Date.now(),
+        title,
+        completed: false,
+      };
+      addNewTask(newTask);
+      createTaskRef.current!.value = '';
+    }
   };
 
-  const handleUpdateTask = (taskId: number, updatedTask: Task) => {
-    // updateTask(taskId, updatedTask);
+  const handleUpdateTask = (taskId: number, updatedTitle: string) => {
+    updateExistingTask(taskId, updatedTitle);
   };
 
   const handleDeleteTask = (taskId: number) => {
-    // deleteTask(taskId);
+    deleteTaskById(taskId);
   };
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    // setSearchTask(e.target.value);
+    setSearchQuery(e.target.value);
   };
 
-  // See! I already give you everything!
-  // const filteredTasks = tasks.filter((task) =>
-  //   task.title.toLowerCase().includes(searchTask.toLowerCase())
-  // );
+  const filteredTasks = searchQuery ? searchTasks() : tasks;
 
   return (
     <div>
       <h1>Task Manager</h1>
 
-      <input type="text" /*ref={}*//>
+      <input type="text" ref={createTaskRef} />
 
       <button onClick={handleAddTask}>Add Task</button>
 
       <input type="text" onChange={handleSearch} placeholder="Search Task" />
 
       <ul>
-        {/* 
         {filteredTasks.map((task) => (
           <li key={task.id}>
             <input
               type="text"
               value={task.title}
-              onChange={(e) =>
-                handleUpdateTask(task.id, { title: e.target.value })
-              }
+              onChange={(e) => handleUpdateTask(task.id, e.target.value)}
             />
             <button onClick={() => handleDeleteTask(task.id)}>Delete</button>
           </li>
         ))}
-        */}
       </ul>
     </div>
   );

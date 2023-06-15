@@ -1,20 +1,20 @@
 import create from 'zustand';
 
-type Task = {
-  id: string;
+interface Task {
+  id: number;
   title: string;
-};
+  completed: boolean;
+}
 
-type TaskStore = {
+interface TaskStore {
   tasks: Task[];
   searchQuery: string;
   addTask: (task: Task) => void;
-  updateTask: (taskId: string, updatedTask: Partial<Task>) => void;
-  deleteTask: (taskId: string) => void;
+  updateTask: (taskId: number, updatedTask: Partial<Task>) => void;
+  deleteTask: (taskId: number) => void;
   setSearchQuery: (query: string) => void;
-};
+}
 
-// Définir le store Zustand
 const useTaskStore = create<TaskStore>((set) => ({
   tasks: [],
   searchQuery: '',
@@ -27,7 +27,6 @@ const useTaskStore = create<TaskStore>((set) => ({
   setSearchQuery: (query) => set(() => ({ searchQuery: query })),
 }));
 
-// Hook personnalisé pour gérer les fonctionnalités de recherche, d'ajout, de mise à jour et de suppression des tâches
 const useTaskManager = () => {
   const { tasks, searchQuery, addTask, updateTask, deleteTask, setSearchQuery } = useTaskStore();
 
@@ -39,17 +38,18 @@ const useTaskManager = () => {
 
   const addNewTask = (title: string) => {
     const newTask: Task = {
-      id: Math.random().toString(),
+      id: Date.now(),
       title,
+      completed: false,
     };
     addTask(newTask);
   };
 
-  const updateExistingTask = (taskId: string, updatedTitle: string) => {
+  const updateExistingTask = (taskId: number, updatedTitle: string) => {
     updateTask(taskId, { title: updatedTitle });
   };
 
-  const deleteTaskById = (taskId: string) => {
+  const deleteTaskById = (taskId: number) => {
     deleteTask(taskId);
   };
 
